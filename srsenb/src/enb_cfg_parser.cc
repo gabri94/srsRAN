@@ -1588,62 +1588,61 @@ static int parse_nr_cell_list(all_args_t* args, rrc_nr_cfg_t* rrc_cfg_nr, rrc_cf
     // We need to skip this safety check in order to use custom bands.
     // In theory it should only be needed to modify the nr_band_table_fr1, but the code seems buggy
     // TODO: check if we can avoid commenting
-    /*
 
-      // Check if dl_arfcn is valid for the given band
-      bool                  dl_arfcn_valid = false;
-      std::vector<uint32_t> bands          = band_helper.get_bands_nr(it->dl_arfcn);
-      for (uint32_t band_idx = 0; band_idx < bands.size(); band_idx++) {
-        if (bands.at(band_idx) == it->band) {
-          dl_arfcn_valid = true;
+    // Check if dl_arfcn is valid for the given band
+    bool                  dl_arfcn_valid = false;
+    std::vector<uint32_t> bands          = band_helper.get_bands_nr(it->dl_arfcn);
+    for (uint32_t band_idx = 0; band_idx < bands.size(); band_idx++) {
+      if (bands.at(band_idx) == it->band) {
+        dl_arfcn_valid = true;
+      }
+    }
+    if (!dl_arfcn_valid) {
+      if (not bands.empty()) {
+        std::stringstream ss;
+        for (uint32_t& band : bands) {
+          ss << band << " ";
+        }
+        ERROR("DL ARFCN (%d) does not belong to band (%d). Recommended bands: %s",
+              it->dl_arfcn,
+              it->band,
+              ss.str().c_str());
+        // return SRSRAN_ERROR;
+      }
+      ERROR("DL ARFCN (%d) is not valid for the specified band (%d)", it->dl_arfcn, it->band);
+      // return SRSRAN_ERROR;
+    }
+
+    if (it->ul_arfcn != 0) {
+      // Check if ul_arfcn is valid for the given band
+      bool                  ul_arfcn_valid = false;
+      std::vector<uint32_t> ul_bands       = band_helper.get_bands_nr(it->ul_arfcn);
+      for (uint32_t band_idx = 0; band_idx < ul_bands.size(); band_idx++) {
+        if (ul_bands.at(band_idx) == it->band) {
+          ul_arfcn_valid = true;
         }
       }
-      if (!dl_arfcn_valid) {
-        if (not bands.empty()) {
-          std::stringstream ss;
-          for (uint32_t& band : bands) {
-            ss << band << " ";
-          }
-          ERROR("DL ARFCN (%d) does not belong to band (%d). Recommended bands: %s",
-                it->dl_arfcn,
-                it->band,
-                ss.str().c_str());
-          return SRSRAN_ERROR;
-        }
-        ERROR("DL ARFCN (%d) is not valid for the specified band (%d)", it->dl_arfcn, it->band);
-        return SRSRAN_ERROR;
+      if (!ul_arfcn_valid) {
+        ERROR("UL ARFCN (%d) is not valid for the specified band (%d)", it->ul_arfcn, it->band);
+        // return SRSRAN_ERROR;
       }
-
-      if (it->ul_arfcn != 0) {
-        // Check if ul_arfcn is valid for the given band
-        bool                  ul_arfcn_valid = false;
-        std::vector<uint32_t> ul_bands       = band_helper.get_bands_nr(it->ul_arfcn);
-        for (uint32_t band_idx = 0; band_idx < ul_bands.size(); band_idx++) {
-          if (ul_bands.at(band_idx) == it->band) {
-            ul_arfcn_valid = true;
-          }
-        }
-        if (!ul_arfcn_valid) {
-          ERROR("UL ARFCN (%d) is not valid for the specified band (%d)", it->ul_arfcn, it->band);
-          return SRSRAN_ERROR;
-        }
-      }
-    }*/
-
-    return SRSRAN_SUCCESS;
+    }
   }
 
-  int cell_list_section::parse(libconfig::Setting & root)
-  {
-    HANDLEPARSERCODE(parse_cell_list(args, rrc_cfg, root));
-    return 0;
-  }
+  return SRSRAN_SUCCESS;
+}
 
-  int nr_cell_list_section::parse(libconfig::Setting & root)
-  {
-    HANDLEPARSERCODE(parse_nr_cell_list(args, nr_rrc_cfg, eutra_rrc_cfg, root));
-    return 0;
-  }
+int cell_list_section::parse(libconfig::Setting& root)
+{
+  HANDLEPARSERCODE(parse_cell_list(args, rrc_cfg, root));
+  return 0;
+}
+
+int nr_cell_list_section::parse(libconfig::Setting& root)
+{
+  HANDLEPARSERCODE(parse_nr_cell_list(args, nr_rrc_cfg, eutra_rrc_cfg, root));
+  return 0;
+}
 
 } // namespace rr_sections
 
